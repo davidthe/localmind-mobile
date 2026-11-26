@@ -33,6 +33,59 @@ pub struct SearchHit {
     pub snippet: String,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, uniffi::Enum)]
+pub enum SearchScope {
+    All,
+    FileNames,
+    InsideFiles,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, uniffi::Record)]
+pub struct SearchOptions {
+    pub scope: SearchScope,
+    pub case_sensitive: bool,
+    pub whole_word: bool,
+    pub use_regex: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, uniffi::Record)]
+pub struct SmallLlmResponse {
+    pub model_name: String,
+    pub answer: String,
+    pub search_supported: bool,
+    pub query: String,
+    pub scope: SearchScope,
+}
+
+/// Generates a deterministic small-LLM placeholder response explaining that
+/// live VS Code-style local file search is not yet enabled in this starter build.
+#[uniffi::export]
+pub fn respond_with_small_llm(query: String, options: SearchOptions) -> SmallLlmResponse {
+    let trimmed = query.trim().to_string();
+    let scope_label = match options.scope {
+        SearchScope::All => "file names and file contents",
+        SearchScope::FileNames => "file names",
+        SearchScope::InsideFiles => "inside files",
+    };
+
+    let answer = if trimmed.is_empty() {
+        "LocalMind Small LLM (v0.1): Enter a query in the search line or tap a search widget option. Live local file searching is not yet supported.".to_string()
+    } else {
+        format!(
+            "LocalMind Small LLM (v0.1): Searching for \"{}\" ({}) is not yet supported in this preview build. File indexing and VS Code-style matching will be connected in the next milestone.",
+            trimmed, scope_label
+        )
+    };
+
+    SmallLlmResponse {
+        model_name: "LocalMind-TinyLLM (on-device stub)".to_string(),
+        answer,
+        search_supported: false,
+        query: trimmed,
+        scope: options.scope,
+    }
+}
+
 #[derive(uniffi::Object)]
 pub struct LocalMindEngine {
     db: Mutex<Connection>,
@@ -75,3 +128,42 @@ impl LocalMindEngine {
 }
 
 fn db_err(e: rusqlite::Error) -> CoreError { CoreError::Database(e.to_string()) }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn small_llm_reports_search_not_supported() {
+        let resp = respond_with_small_llm(
+            "MainActivity.kt".to_string(),
+            SearchOptions {
+                scope: SearchScope::FileNames,
+                case_sensitive: false,
+                whole_word: false,
+                use_regex: false,
+            },
+        );
+        assert!(!resp.search_supported);
+        assert!(resp.answer.contains("not yet supported"));
+        assert!(resp.answer.contains("file names"));
+    }
+
+    #[test]
+    fn fts_indexes_and_finds_file() {
+        let engine = LocalMindEngine::new(":memory:".to_string()).unwrap();
+        engine
+            .upsert_file(FileRecord {
+                id: "1".to_string(),
+                display_name: "notes.md".to_string(),
+                mime_type: "text/markdown".to_string(),
+                modified_epoch: 100,
+                platform_uri: "file:///notes.md".to_string(),
+                extracted_text: "LocalMind VS Code style search".to_string(),
+            })
+            .unwrap();
+        let hits = engine.search_files("LocalMind".to_string(), 10).unwrap();
+        assert_eq!(hits.len(), 1);
+        assert_eq!(hits[0].display_name, "notes.md");
+    }
+}

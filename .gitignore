@@ -1,0 +1,19 @@
+# Android / Gradle
+apps/android/.gradle/
+apps/android/build/
+apps/android/app/build/
+apps/android/local.properties
+apps/android/app/.cxx/
+
+# Local LLM vendor/model artifacts (fetched via scripts/fetch-llm-deps.*)
+apps/android/app/src/main/cpp/llama.cpp/
+*.gguf
+
+# Rust
+core/target/
+
+# iOS / Xcode
+apps/ios/*.xcodeproj/
+apps/ios/*.xcworkspace/
+apps/ios/DerivedData/
+.DS_Store
