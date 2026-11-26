@@ -50,4 +50,4 @@ Native iOS application scaffold built with **SwiftUI**, **`WidgetKit`**, and **`
 ## Next Steps for iOS Local LLM Integration
 
 1. Bundle `llama.cpp` as an `XCFramework` (built with Metal support on Apple Silicon / iOS devices) and implement a `LlamaCppLlmResponder: SmallLlmResponding` conforming type in `LocalMind/`.
-2. Connect the shared Rust `core/` library via UniFFI (`localmind_core.xcframework`) to enable SQLite FTS5 indexing of user-picked files (`fileImporter`) and Photos metadata.
+2. Connect the shared Rust `core/` library via UniFFI (`localmind_core.xcframework`) to index user-picked files (`fileImporter`) and Photos metadata.
