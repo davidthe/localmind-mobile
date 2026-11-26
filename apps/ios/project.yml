@@ -1,0 +1,38 @@
+name: LocalMind
+options:
+  bundleIdPrefix: dev.localmind
+  deploymentTarget:
+    iOS: "17.0"
+targets:
+  LocalMind:
+    type: application
+    platform: iOS
+    sources:
+      - LocalMind
+    info:
+      path: LocalMind/Info.plist
+      properties:
+        CFBundleURLTypes:
+          - CFBundleURLName: dev.localmind.search
+            CFBundleURLSchemes:
+              - localmind
+        UILaunchScreen: {}
+    dependencies:
+      - target: LocalMindWidget
+  LocalMindWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - LocalMindWidget
+    info:
+      path: LocalMindWidget/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+  LocalMindTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - LocalMindTests
+    dependencies:
+      - target: LocalMind
