@@ -10,7 +10,7 @@ A privacy-first, offline-first local search engine for **Android** and **iOS** i
 | :--- | :--- | :--- |
 | **Android App** (`apps/android/`) | Built & Unit-Tested | Clean Google/Gemini pill search bar UI in Jetpack Compose, scope/match toggles (`All`, `File Names`, `Inside Files`, `Aa`, `ab`, `.*`), Android Home Screen search widget, and on-device **SmolLM2-135M-Instruct** (`Q4_K_M`) inference via `llama.cpp` JNI. |
 | **iOS App** (`apps/ios/`) | Scaffolded | Matching SwiftUI Google/Gemini pill search bar UI, `localmind://search` deep linking, `WidgetKit` home/lock-screen search widget, `XCTest` suite, and XcodeGen `project.yml`. Requires macOS + Xcode to build. |
-| **Rust Core** (`core/`) | Scaffolded | SQLite FTS5 indexing/search (`LocalMindEngine`) plus shared `SearchScope`, `SearchOptions`, and `respond_with_small_llm` UniFFI contracts. |
+| **Rust Core** (`core/`) | Search API | Tantivy full-text search and USearch vector retrieval behind UniFFI. Rust generates page and query embeddings locally with EmbeddingGemma 2. |
 | **Live File Indexing** | Not Yet Connected | As requested for this milestone, submitting any search returns an on-device small-LLM answer explaining that live device file searching is not yet supported. |
 
 ---
@@ -27,10 +27,11 @@ localmind-mobile/
 │   ├── fetch-llm-deps.ps1           # Windows: downloads SmolLM2 GGUF + clones llama.cpp
 │   └── fetch-llm-deps.sh            # macOS/Linux: downloads SmolLM2 GGUF + clones llama.cpp
 ├── core/
-│   ├── README.md                    # Rust core + SQLite FTS5 + UniFFI documentation
+│   ├── README.md                    # Shared search API and usage
+│   ├── Cargo.lock
 │   ├── Cargo.toml
-│   ├── build.rs
-│   └── src/lib.rs                   # LocalMindEngine (FTS5) + SearchOptions + SmallLlmResponse
+│   ├── src/                         # Tantivy, USearch, and UniFFI API
+│   └── tests/                       # Search, indexing, and deletion integration tests
 ├── apps/
 │   ├── android/
 │   │   ├── README.md                # Android app, JNI, widget, and test documentation
@@ -144,14 +145,14 @@ See [apps/ios/README.md](apps/ios/README.md) for WidgetKit, deep linking, and te
 
 ### 3. Shared Rust Core
 
-**Prerequisites:** Rust toolchain (`rustup` / `cargo`) and a system C linker.
+**Prerequisites:** Rust toolchain (`rustup` / `cargo`), CMake, libclang, and a C++ toolchain.
 
 ```bash
 cd core
-cargo test
+cargo test --locked
 ```
 
-See [core/README.md](core/README.md) for SQLite FTS5 and UniFFI details.
+See [core/README.md](core/README.md) for the shared search API.
 
 ---
 
