@@ -1,34 +1,28 @@
-# Ignore generated app build artefacts
-
-# Android
+# Android / Gradle
 apps/android/.gradle/
+apps/android/build/
 apps/android/app/build/
+apps/android/local.properties
 apps/android/app/.cxx/
-apps/android/app/src/main/assets/
-apps/android/app/src/main/cpp/llama.cpp/
-apps/android/app/src/main/jniLibs/
-apps/android/app/src/main/java/com/localmind/**/generated/
 
-# iOS
-apps/ios/DerivedData/
-apps/ios/*.xcworkspace/
+# Android generated source / Java output
+apps/android/app/src/main/java/com/
+apps/android/app/src/main/assets/
+apps/android/app/src/main/jniLibs/
+apps/android/app/src/main/cpp/llama.cpp/
+
+# Local LLM vendor/model artifacts (fetched via scripts/fetch-llm-deps.*)
+*.gguf
+
+# Rust
+core/target/
+
+# iOS / Xcode
 apps/ios/*.xcodeproj/
+apps/ios/*.xcworkspace/
+apps/ios/DerivedData/
 apps/ios/Build/
 apps/ios/Pods/
 
-# Rust build artefacts
-core/target/
-
-# Model binaries (large files)
-*.gguf
-
 # Misc
 .DS_Store
-
-# Additional ignored directories observed after push
-apps/android/app/src/main/java/com/
-apps/android/build/
-
-# Additional ignored directories
-apps/android/app/src/main/java/com/
-apps/android/build/
