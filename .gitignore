@@ -24,3 +24,11 @@ core/target/
 
 # Misc
 .DS_Store
+
+# Additional ignored directories observed after push
+apps/android/app/src/main/java/com/
+apps/android/build/
+
+# Additional ignored directories
+apps/android/app/src/main/java/com/
+apps/android/build/
